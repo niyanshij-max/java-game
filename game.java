@@ -1,4 +1,3 @@
-
 import java.util.*;
 
 public class game
@@ -79,7 +78,12 @@ public class game
                         System.out.println("choose from 1-6");
                     }
                 }
+
             }
+
+            marketEngine.updateprices(stock, bond, gold, crypto);
+            System.out.println("\nmarket changed");
+            market();
         }
 
         winner();
@@ -191,17 +195,21 @@ void balance()
 
     
     
+
 void winner()
 {
-    System.out.println("\n-final result-");
-    System.out.println(player1.getname() + " cash: " + player1.getmoney());
-    System.out.println(player2.getname() + " cash: " + player2.getmoney());
+    int total1 = player1.totalvalue(stock, bond, gold, crypto);
+    int total2 = player2.totalvalue(stock, bond, gold, crypto);
 
-    if(player1.getmoney() > player2.getmoney())
+    System.out.println("\n-final result-");
+    System.out.println(player1.getname() + " total wealth: " + total1);
+    System.out.println(player2.getname() + " total wealth: " + total2);
+
+    if(total1 > total2)
     {
         System.out.println(player1.getname() + " wins");
     }
-    else if(player2.getmoney() > player1.getmoney())
+    else if(total2 > total1)
     {
         System.out.println(player2.getname() + " wins");
     }
@@ -210,6 +218,7 @@ void winner()
         System.out.println("its a tie");
     }
 }
+
 
 
 }
@@ -410,13 +419,29 @@ class crypto extends asset
 
 class marketengine
 {
+    Random rand = new Random();
+
     void showmarket(asset stock, asset bond, asset gold, asset crypto)
     {
         System.out.println("\n-market prices-");
-        System.out.println("stock: "+ stock.price);
-        System.out.println("bond: "+ bond.price);
-        System.out.println("gold: "+gold.price);
-        System.out.println("crypto: "+crypto.price);
+        System.out.println("stock: " + stock.price);
+        System.out.println("bond: " + bond.price);
+        System.out.println("gold: " + gold.price);
+        System.out.println("crypto: " + crypto.price);
+    }
+
+    void changeprice(asset a, int maxpercent)
+    {
+        int change = rand.nextInt(2 * maxpercent + 1) - maxpercent; // -max to +max
+        a.price = Math.max(1, a.price + a.price * change / 100);
+    }
+
+    void updateprices(asset stock, asset bond, asset gold, asset crypto)
+    {
+        changeprice(stock, 10);   
+        changeprice(bond, 3);     
+        changeprice(gold, 6);     
+        changeprice(crypto, 25);  
     }
 }
 
@@ -426,7 +451,7 @@ class gamerules
     
 boolean canbuy(player p, asset a, int quantity)
 {
-    return quantity > 0 && p.getmoney() >= a.getvalue(quantity);
+    return quantity > 0 && (long) a.price * quantity <= p.getmoney();
 }
 
 
@@ -435,4 +460,3 @@ boolean canbuy(player p, asset a, int quantity)
         return quantity > 0 && holdings >= quantity;
     }
 }
-
